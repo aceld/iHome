@@ -85,7 +85,11 @@ func (this *LoginController) Post() {
 
 	//存入session
 	this.SetSession("user_id", user.Id)
-	this.SetSession("name", user.Mobile)
+	if user.Name == "" {
+		this.SetSession("name", user.Mobile)
+	} else {
+		this.SetSession("name", user.Name)
+	}
 	this.SetSession("mobile", user.Mobile)
 	return
 }

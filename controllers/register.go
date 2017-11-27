@@ -83,7 +83,11 @@ func (c *RegController) Post() {
 
 	//存入session
 	c.SetSession("user_id", user.Id)
-	c.SetSession("name", user.Mobile)
+	if user.Name == "" {
+		c.SetSession("name", user.Mobile)
+	} else {
+		c.SetSession("name", user.Name)
+	}
 	c.SetSession("mobile", user.Mobile)
 
 	return

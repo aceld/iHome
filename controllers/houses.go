@@ -210,6 +210,15 @@ func (this *HousesController) Post() {
 		return
 	}
 	beego.Debug("house m2m facility insert num =", num, " succ!")
+
+	//将index缓存删除
+	cache_conn, err := cache.NewCache("redis", `{"key": "ihome_go", "conn":"127.0.0.1:6380", "dbNum":"8"}`)
+	if err != nil {
+		beego.Debug("connect cache error")
+	}
+	house_page_key := "home_page_data"
+	cache_conn.Delete(house_page_key)
+
 	rep.Data = House_id{House_id: house_id}
 
 	return

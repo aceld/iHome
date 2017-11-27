@@ -1,6 +1,8 @@
 package models
 
 import (
+	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
 	"iHome/utils"
 	"time"
@@ -100,12 +102,27 @@ func (this *House) To_one_house_desc() interface{} {
 	house_desc["facilities"] = facilities
 
 	//评论信息
+
 	comments := []interface{}{}
-	for i := 0; i < 10; i++ {
+	orders := []OrderHouse{}
+	o := orm.NewOrm()
+	order_num, err := o.QueryTable("order_house").Filter("house__id", this.Id).Filter("status", ORDER_STATUS_COMPLETE).OrderBy("-ctime").Limit(10).All(&orders)
+	if err != nil {
+		beego.Error("select orders comments error, err =", err, "house id = ", this.Id)
+	}
+	for i := 0; i < int(order_num); i++ {
+		o.LoadRelated(&orders[i], "User")
+		var username string
+		if orders[i].User.Name == "" {
+			username = "匿名用户"
+		} else {
+			username = orders[i].User.Name
+		}
+
 		comment := map[string]string{
-			"comment":   "评论的内容",
-			"user_name": "评论人的姓名",
-			"ctime":     "2017-11-12 12:30:30",
+			"comment":   orders[i].Comment,
+			"user_name": username,
+			"ctime":     orders[i].Ctime.Format("2006-01-02 15:04:05"),
 		}
 		comments = append(comments, comment)
 	}
@@ -155,9 +172,9 @@ type OrderHouse struct {
 	Days        int       //预定总天数
 	House_price int       //房屋的单价
 	Amount      int       //订单总金额
-	Status      string    `orm:"default(WAIT_ACCEPT)"` //订单状态
-	Comment     string    `orm:"size(512)"`            //订单评论
-	Ctime       time.Time `orm:"auto_now_add;type(datetime)" json:"ctime"`
+	Status      string    `orm:"default(WAIT_ACCEPT)"`                 //订单状态
+	Comment     string    `orm:"size(512)"`                            //订单评论
+	Ctime       time.Time `orm:"auto_now;type(datetime)" json:"ctime"` //每次更新此表，都会更新这个字段
 }
 
 func (this *OrderHouse) To_order_info() interface{} {

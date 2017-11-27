@@ -133,5 +133,73 @@ func (this *OrdersController) OrderStatus() {
 	rep := OrderResp{Errno: utils.RECODE_OK, Errmsg: utils.RecodeText(utils.RECODE_OK)}
 	defer this.RetData(&rep)
 
+	//得到order_id
+	order_id := this.Ctx.Input.Param(":id")
+
+	//得到当前用户id
+	user_id := this.GetSession("user_id").(int)
+	var req map[string]interface{}
+	if err := json.Unmarshal(this.Ctx.Input.RequestBody, &req); err != nil {
+		rep.Errno = utils.RECODE_REQERR
+		rep.Errmsg = utils.RecodeText(rep.Errno)
+		return
+	}
+	//得到请求指令
+	action := req["action"]
+	if action != "accept" && action != "reject" {
+		rep.Errno = utils.RECODE_REQERR
+		rep.Errmsg = utils.RecodeText(rep.Errno)
+		return
+	}
+
+	o := orm.NewOrm()
+
+	order := models.OrderHouse{}
+	if err := o.QueryTable("order_house").Filter("id", order_id).Filter("status", models.ORDER_STATUS_WAIT_ACCEPT).One(&order); err != nil {
+		rep.Errno = utils.RECODE_DATAERR
+		rep.Errmsg = utils.RecodeText(rep.Errno)
+		return
+	}
+
+	if _, err := o.LoadRelated(&order, "House"); err != nil {
+		rep.Errno = utils.RECODE_DATAERR
+		rep.Errmsg = utils.RecodeText(rep.Errno)
+		return
+	}
+	house := order.House
+	/*
+		fmt.Printf("house = %+v\n", house)
+		fmt.Printf("house.user_id = %d\n", house.User.Id)
+	*/
+	if house.User.Id != user_id {
+		rep.Errno = utils.RECODE_DATAERR
+		rep.Errmsg = "订单用户不匹配,操作无效"
+		return
+	}
+
+	if action == "accept" {
+		//如果是接受订单,将订单状态变成待评价状态
+		order.Status = models.ORDER_STATUS_WAIT_COMMENT
+		beego.Debug("action = accpet!")
+	} else if action == "reject" {
+		//如果是拒绝接单, 尝试获得拒绝原因,并把拒单原因保存起来
+		order.Status = models.ORDER_STATUS_REJECTED
+		reason := req["reason"]
+		order.Comment = reason.(string)
+		beego.Debug("action = reject!, reason is ", reason)
+	}
+
+	//将order订单重新入库
+
+	if _, err := o.Update(&order); err != nil {
+		rep.Errno = utils.RECODE_DBERR
+		rep.Errmsg = utils.RecodeText(rep.Errno)
+		return
+	}
+
 	return
+}
+
+// /orders/:id/comment [PUT]
+func (this *OrdersController) OrderComment() {
 }

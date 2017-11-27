@@ -71,9 +71,10 @@ func init() {
 
 				//用户下单请求
 				beego.NSRouter("/orders", &controllers.OrdersController{}, "post:Post"),
-
 				//房东用户接受/拒绝 订单请求
 				beego.NSRouter("/orders/:id/status", &controllers.OrdersController{}, "put:OrderStatus"),
+				//用户发送订单评价信息
+				beego.NSRouter("/orders/:id/comment", &controllers.OrdersController{}, "put:OrderComment"),
 			),
 		)
 

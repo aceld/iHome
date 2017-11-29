@@ -30,8 +30,8 @@ $(document).ready(function(){
         else if ("0" == resp.errno) {
             $("#user-name").html(resp.data.name);
             $("#user-mobile").html(resp.data.mobile);
-            if (resp.data.avatar) {
-                $("#user-avatar").attr("src", resp.data.avatar);
+            if (resp.data.avatar_url) {
+                $("#user-avatar").attr("src", resp.data.avatar_url);
             }
 
         }

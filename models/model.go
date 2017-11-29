@@ -195,4 +195,16 @@ func (this *OrderHouse) To_order_info() interface{} {
 }
 
 func init() {
+	orm.RegisterDriver("mysql", orm.DRMySQL)
+
+	// set default database
+	orm.RegisterDataBase("default", "mysql", "root:mysql@tcp("+utils.G_mysql_addr+":"+utils.G_mysql_port+")/"+utils.G_mysql_dbname+"?charset=utf8", 30)
+
+	//注册model
+	orm.RegisterModel(new(User), new(House), new(Area), new(Facility), new(HouseImage), new(OrderHouse))
+
+	// create table
+	//第二个参数是强制更新数据库
+	//第三个参数是如果没有则同步
+	orm.RunSyncdb("default", false, true)
 }

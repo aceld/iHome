@@ -285,7 +285,14 @@ func (this *OrdersController) OrderComment() {
 	}
 
 	//将house_info_[house_id]的缓存key删除 （因为已经修改订单数量）
-	cache_conn, err := cache.NewCache("redis", `{"key": "ihome_go", "conn":"127.0.0.1:6380", "dbNum":"8"}`)
+	redis_config_map := map[string]string{
+		"key":   "ihome_go",
+		"conn":  utils.G_redis_addr + ":" + utils.G_redis_port,
+		"dbNum": utils.G_redis_dbnum,
+	}
+	redis_config, _ := json.Marshal(redis_config_map)
+
+	cache_conn, err := cache.NewCache("redis", string(redis_config))
 	if err != nil {
 		beego.Debug("connect cache error")
 	}

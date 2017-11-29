@@ -212,7 +212,14 @@ func (this *HousesController) Post() {
 	beego.Debug("house m2m facility insert num =", num, " succ!")
 
 	//将index缓存删除
-	cache_conn, err := cache.NewCache("redis", `{"key": "ihome_go", "conn":"127.0.0.1:6380", "dbNum":"8"}`)
+	redis_config_map := map[string]string{
+		"key":   "ihome_go",
+		"conn":  utils.G_redis_addr + ":" + utils.G_redis_port,
+		"dbNum": utils.G_redis_dbnum,
+	}
+	redis_config, _ := json.Marshal(redis_config_map)
+
+	cache_conn, err := cache.NewCache("redis", string(redis_config))
 	if err != nil {
 		beego.Debug("connect cache error")
 	}
@@ -321,7 +328,14 @@ func (this *HousesController) GetOneHouseInfo() {
 	house_id := this.Ctx.Input.Param(":id")
 
 	//先从缓存中获取房屋数据,将缓存数据返回前端即可
-	cache_conn, err := cache.NewCache("redis", `{"key": "ihome_go", "conn":"127.0.0.1:6380", "dbNum":"8"}`)
+	redis_config_map := map[string]string{
+		"key":   "ihome_go",
+		"conn":  utils.G_redis_addr + ":" + utils.G_redis_port,
+		"dbNum": utils.G_redis_dbnum,
+	}
+	redis_config, _ := json.Marshal(redis_config_map)
+
+	cache_conn, err := cache.NewCache("redis", string(redis_config))
 	if err != nil {
 		beego.Debug("connect cache error")
 	}
@@ -397,7 +411,14 @@ func (this *HousesController) IndexHouses() {
 
 	//1 从缓存服务器中请求 "home_page_data" 字段,如果有值就直接返回
 	//先从缓存中获取房屋数据,将缓存数据返回前端即可
-	cache_conn, err := cache.NewCache("redis", `{"key": "ihome_go", "conn":"127.0.0.1:6380", "dbNum":"8"}`)
+	redis_config_map := map[string]string{
+		"key":   "ihome_go",
+		"conn":  utils.G_redis_addr + ":" + utils.G_redis_port,
+		"dbNum": utils.G_redis_dbnum,
+	}
+	redis_config, _ := json.Marshal(redis_config_map)
+
+	cache_conn, err := cache.NewCache("redis", string(redis_config))
 	if err != nil {
 		beego.Debug("connect cache error")
 	}

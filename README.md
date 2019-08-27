@@ -19,15 +19,10 @@ $go run main.go
 
 
 
-## 二、学习教程链接
+## 二、文档资料
 
-### 1、在线学习资料
 https://legacy.gitbook.com/book/aceld/how-do-go/details
 
-### 2、视频
-
-链接: https://pan.baidu.com/s/1rWb-0GJEoiEsUnQ2naWexg 
-提取码: 26du 
 
 
 ## 三、效果图
